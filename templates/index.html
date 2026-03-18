@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance System</title>
+
+    <!-- Bootstrap CSS -->
+    <link 
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" 
+        rel="stylesheet">
+
+    <style>
+        body {
+            background: #f5f7fa;
+            font-family: "Segoe UI", sans-serif;
+        }
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .header-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .btn-custom {
+            background: #0d6efd;
+            color: white;
+            font-weight: 500;
+            border-radius: 8px;
+            padding: 10px 20px;
+        }
+        .btn-custom:hover {
+            background: #27518f;
+        }
+        .footer-text {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+
+                <div class="card p-4">
+                    <h3 class="text-center header-title mb-4">
+                        Attendance Check-In / Check-Out
+                    </h3>
+
+                    <form action="/submit" method="POST">
+
+                        <div class="mb-3">
+                            <label class="form-label">Employee Name</label>
+                            <input type="text" name="employee" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option>Check-In</option>
+                                <option>Check-Out</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Latitude</label>
+                            <input type="text" name="latitude" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Longitude</label>
+                            <input type="text" name="longitude" class="form-control">
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-custom w-100">
+                                Submit Attendance
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+
+                <p class="text-center footer-text">
+                    © 2024 Attendance System — Powered by GoLang
+                </p>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script 
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+</body>
+</html>

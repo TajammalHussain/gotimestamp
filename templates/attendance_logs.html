@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Logs</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f5f7fa;
+            font-family: "Segoe UI", sans-serif;
+            font-size: 16px;
+        }
+        .sidebar {
+            width: 240px;
+            height: 100vh;
+            background: #27518f;
+            color: white;
+            position: fixed;
+            padding-top: 30px;
+        }
+        .sidebar a {
+            color: white;
+            display: block;
+            padding: 12px 20px;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .content {
+            margin-left: 260px;
+            padding: 30px;
+            font-size: 12px;
+        }
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .date-header {
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <h4 class="text-center mb-4">Admin Panel</h4>
+
+    <a href="/admin/dashboard">Dashboard</a>
+    <a href="/admin/users/add">Add User</a>
+    <a href="/admin/logs">Attendance Logs</a>
+    <a href="/logout">Logout</a>
+</div>
+
+<div class="content">
+    <h2>Attendance Logs</h2>
+    <p class="text-muted">Daily grouped attendance records</p>
+
+    {{range $date, $records := .Logs}}
+    <div class="date-header" data-bs-toggle="collapse" data-bs-target="#d{{$date}}">
+        📅 {{$date}}
+    </div>
+
+    <div id="d{{$date}}" class="collapse show">
+        <div class="card p-3 mt-2">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Check-In</th>
+                        <th>Check-Out</th>
+                        <th>Duration</th>
+                        <th>Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range $records}}
+                    <tr>
+                        <td>{{.Employee}}</td>
+                        <td>{{.CheckIn}}</td>
+                        <td>{{.CheckOut}}</td>
+                        <td>{{.Duration}}</td>
+                        <td>
+                            <strong>In:</strong> {{.AddressIn}}<br>
+                            <strong>Out:</strong> {{.AddressOut}}
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {{end}}
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

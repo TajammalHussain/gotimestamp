@@ -1,0 +1,19 @@
+# Database (Railway volume handles this)
+data/
+*.db
+
+# Binaries
+server
+*.exe
+
+# Go build cache
+*.o
+*.a
+
+# Env
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
