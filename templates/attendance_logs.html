@@ -4,107 +4,112 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Logs</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <style>
-        body {
-            background: #f5f7fa;
-            font-family: "Segoe UI", sans-serif;
-            font-size: 16px;
-        }
-        .sidebar {
-            width: 240px;
-            height: 100vh;
-            background: #27518f;
-            color: white;
-            position: fixed;
-            padding-top: 30px;
-        }
-        .sidebar a {
-            color: white;
-            display: block;
-            padding: 12px 20px;
-            text-decoration: none;
-        }
-        .sidebar a:hover {
-            background: rgba(255,255,255,0.2);
-        }
-        .content {
-            margin-left: 260px;
-            padding: 30px;
-            font-size: 12px;
-        }
-        .card {
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        .date-header {
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 10px;
-            background: #e9ecef;
-            border-radius: 6px;
-            margin-top: 20px;
-        }
+        body { background: #f5f7fa; font-family: "Segoe UI", sans-serif; }
+        .sidebar { width: 240px; height: 100vh; background: #27518f; color: white; position: fixed; padding-top: 30px; }
+        .sidebar a { color: white; display: block; padding: 12px 22px; text-decoration: none; font-size: 15px; transition: 0.2s; }
+        .sidebar a:hover { background: rgba(255,255,255,0.18); padding-left: 28px; }
+        .role-badge { display: inline-block; background: rgba(255,255,255,0.2); border-radius: 20px; padding: 2px 10px; font-size: 12px; }
+        .content { margin-left: 260px; padding: 30px; }
+        .card { border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .date-header { font-size: 15px; font-weight: bold; cursor: pointer; padding: 10px 14px; background: #e9ecef; border-radius: 6px; margin-top: 16px; }
+        table { font-size: 13px; }
+        table thead { background: #27518f; color: white; }
+        .filter-bar { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); margin-bottom: 24px; }
+        .btn-filter { border-radius: 20px; padding: 6px 18px; font-size: 13px; }
+        .btn-filter.active { background: #27518f; color: white; border-color: #27518f; }
     </style>
 </head>
-
 <body>
 
 <div class="sidebar">
-    <h4 class="text-center mb-4">Admin Panel</h4>
-
-    <a href="/admin/dashboard">Dashboard</a>
-    <a href="/admin/users/add">Add User</a>
-    <a href="/admin/logs">Attendance Logs</a>
-    <a href="/logout">Logout</a>
+    <h4 class="text-center mb-1">GoTimeStamp</h4>
+    <p class="text-center mb-4"><span class="role-badge">{{.Role}}</span></p>
+    <a href="/admin/dashboard">🏠 Dashboard</a>
+    <a href="/admin/users/add">➕ Add User</a>
+    <a href="/admin/logs">📋 Attendance Logs</a>
+    <hr style="border-color:rgba(255,255,255,0.2);margin:10px 20px;">
+    <a href="/logout">🚪 Logout</a>
 </div>
 
 <div class="content">
-    <h2>Attendance Logs</h2>
-    <p class="text-muted">Daily grouped attendance records</p>
+    <h2 class="fw-bold">Attendance Logs</h2>
+    <p class="text-muted">Filter and export attendance records</p>
 
-    {{range $date, $records := .Logs}}
-    <div class="date-header" data-bs-toggle="collapse" data-bs-target="#d{{$date}}">
-        📅 {{$date}}
-    </div>
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <form method="GET" action="/admin/logs" class="row g-3 align-items-end">
+            <div class="col-auto">
+                <label class="form-label fw-semibold mb-1">Quick Filter</label><br>
+                <a href="/admin/logs?filter=weekly" class="btn btn-outline-primary btn-filter {{if eq .Filter "weekly"}}active{{end}} me-1">📅 This Week</a>
+                <a href="/admin/logs?filter=monthly" class="btn btn-outline-primary btn-filter {{if eq .Filter "monthly"}}active{{end}} me-1">🗓 This Month</a>
+                <a href="/admin/logs" class="btn btn-outline-secondary btn-filter {{if eq .Filter ""}}active{{end}}">All Records</a>
+            </div>
+            <div class="col-auto ms-auto">
+                <label class="form-label fw-semibold mb-1">Custom Date Range</label>
+                <div class="d-flex gap-2 align-items-center">
+                    <input type="date" name="from" value="{{.From}}" class="form-control form-control-sm" style="width:145px;">
+                    <span>to</span>
+                    <input type="date" name="to" value="{{.To}}" class="form-control form-control-sm" style="width:145px;">
+                    <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+                </div>
+            </div>
+        </form>
 
-    <div id="d{{$date}}" class="collapse show">
-        <div class="card p-3 mt-2">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Employee</th>
-                        <th>Check-In</th>
-                        <th>Check-Out</th>
-                        <th>Duration</th>
-                        <th>Address</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{range $records}}
-                    <tr>
-                        <td>{{.Employee}}</td>
-                        <td>{{.CheckIn}}</td>
-                        <td>{{.CheckOut}}</td>
-                        <td>{{.Duration}}</td>
-                        <td>
-                            <strong>In:</strong> {{.AddressIn}}<br>
-                            <strong>Out:</strong> {{.AddressOut}}
-                        </td>
-                    </tr>
-                    {{end}}
-                </tbody>
-            </table>
+        <!-- Export Button -->
+        <div class="mt-3 pt-3 border-top d-flex align-items-center gap-2">
+            <span class="fw-semibold">Export:</span>
+            <a href="/admin/logs/export?filter={{.Filter}}&from={{.From}}&to={{.To}}" class="btn btn-success btn-sm">
+                📥 Download Excel / CSV
+            </a>
+            <span class="text-muted small">(Opens in Excel automatically)</span>
         </div>
     </div>
-    {{end}}
 
+    <!-- Logs -->
+    {{if .Logs}}
+        {{range $date, $records := .Logs}}
+        <div class="date-header" data-bs-toggle="collapse" data-bs-target="#d{{$date}}">
+            📅 {{$date}} <span class="text-muted fw-normal small">({{len $records}} records)</span>
+        </div>
+        <div id="d{{$date}}" class="collapse show">
+            <div class="card p-3 mt-1">
+                <table class="table table-bordered mb-0">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Check-In</th>
+                            <th>Check-Out</th>
+                            <th>Duration</th>
+                            <th>Location In</th>
+                            <th>Location Out</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range $records}}
+                        <tr>
+                            <td><strong>{{.Employee}}</strong></td>
+                            <td>{{.CheckIn}}</td>
+                            <td>{{if .CheckOut}}{{.CheckOut}}{{else}}<span class="badge bg-warning text-dark">Still In</span>{{end}}</td>
+                            <td>{{if .Duration}}<span class="badge bg-success">{{.Duration}}</span>{{else}}—{{end}}</td>
+                            <td style="font-size:11px;">{{.AddressIn}}</td>
+                            <td style="font-size:11px;">{{if .AddressOut}}{{.AddressOut}}{{else}}—{{end}}</td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {{end}}
+    {{else}}
+        <div class="text-center text-muted mt-5 py-5">
+            <div style="font-size:48px;">📭</div>
+            <h5 class="mt-3">No records found for this period</h5>
+        </div>
+    {{end}}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>
