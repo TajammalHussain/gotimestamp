@@ -248,10 +248,23 @@ func employeeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	checkedIn := isCheckedIn(u.Username)
+	lastCheckIn, _ := getLastOpenCheckIn(u.Username)
+
+	// Get last completed shift duration (shown after checkout)
+	var finalDuration string
+	if !checkedIn {
+		db.QueryRow(`
+			SELECT duration FROM attendance
+			WHERE employee=? AND check_out != ''
+			ORDER BY check_in DESC LIMIT 1
+		`, u.Username).Scan(&finalDuration)
+	}
 
 	templates.ExecuteTemplate(w, "employee.html", map[string]interface{}{
-		"Username":  u.Username,
-		"CheckedIn": checkedIn,
+		"Username":      u.Username,
+		"CheckedIn":     checkedIn,
+		"LastCheckIn":   lastCheckIn,
+		"FinalDuration": finalDuration,
 	})
 }
 
@@ -291,7 +304,13 @@ func submitAttendanceHandler(w http.ResponseWriter, r *http.Request) {
 			int(diff.Seconds())%60,
 		)
 
-		appendAttendance(u.Username, lastIn, now, duration, addrIn, address)
+		// UPDATE the existing open record instead of inserting a duplicate
+		db.Exec(`
+			UPDATE attendance SET check_out=?, duration=?, address_out=?
+			WHERE employee=? AND check_out=''
+			ORDER BY check_in DESC LIMIT 1
+		`, now, duration, address, u.Username)
+		_ = addrIn // already stored on check-in
 	}
 
 	http.Redirect(w, r, "/employee", http.StatusSeeOther)
