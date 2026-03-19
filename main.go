@@ -304,13 +304,21 @@ func submitAttendanceHandler(w http.ResponseWriter, r *http.Request) {
 			int(diff.Seconds())%60,
 		)
 
-		// UPDATE the existing open record instead of inserting a duplicate
-		db.Exec(`
-			UPDATE attendance SET check_out=?, duration=?, address_out=?
+		// Get the ID of the open record first, then update by ID
+		var openID int
+		db.QueryRow(`
+			SELECT id FROM attendance
 			WHERE employee=? AND check_out=''
 			ORDER BY check_in DESC LIMIT 1
-		`, now, duration, address, u.Username)
-		_ = addrIn // already stored on check-in
+		`, u.Username).Scan(&openID)
+
+		if openID > 0 {
+			db.Exec(`
+				UPDATE attendance SET check_out=?, duration=?, address_out=?
+				WHERE id=?
+			`, now, duration, address, openID)
+		}
+		_ = addrIn
 	}
 
 	http.Redirect(w, r, "/employee", http.StatusSeeOther)
