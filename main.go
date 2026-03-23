@@ -259,7 +259,14 @@ func adminDashboardHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	rows, err := db.Query("SELECT id, username, password, role FROM users ORDER BY role, username")
+	// Admins cannot see superadmin account — only superadmin can see all users
+	var rows *sql.Rows
+	var err error
+	if isSuperAdmin(u) {
+		rows, err = db.Query("SELECT id, username, password, role FROM users ORDER BY role, username")
+	} else {
+		rows, err = db.Query("SELECT id, username, password, role FROM users WHERE role != 'superadmin' ORDER BY role, username")
+	}
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
